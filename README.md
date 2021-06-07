@@ -1,3 +1,5 @@
+![](https://i.imgur.com/s1qm4Ak.png)
+
 # Overview
 This is a utility mod for [Himeko Sutori](https://himekosutori.com/). It's only purpose is to swap out the game's base PlayerController class with an identical one that is observable. The observable PlayerController acts like the original except it notifies a list of EventListeners when certain game events occur. 
 
