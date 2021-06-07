@@ -44,11 +44,12 @@ function OnEventManagerCreated(EventManager Manager)
 }
 ```
 
-Then you need to add it to your RPGTacMods.ini file like so:
+You then need to add the Events Mod's mutator and your own mutator to your RPGTacMods.ini file like so:
 ```
 [rpgtacgame.RPGTacMutatorLoader]
-MutatorsLoaded=MyCustomMod.MyCustomMutator
+MutatorsLoaded=EventsMod.EventsModStart,MyCustomMod.MyCustomMutator
 ```
+Events Mod needs to be first in the list so it is loaded first. Also, there can be no spaces between items in the list as whitespaces are not trimmed.
 
 For a fuller example, check out the [More Classes Mod](https://github.com/solimodsthings/MoreClassesMod).
 
