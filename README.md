@@ -33,7 +33,7 @@ function OnPawnLevelUp(RPGTacPawn LevelledUpPawn)
 ```
 
 # How does I get my mod to load?
-You'll need to also create a mutator to take advantage of the game's mutator loader. Create a subclass of EventMutator and use the OnEventManagerCreated() function to register your custom EventListener to the EventManager. Here is an example of what that would look like:
+You'll need to also create a [mutator](https://docs.unrealengine.com/udk/Three/UT3Mods.html#Mutators) to take advantage of the game's mutator loader. Create a subclass of EventMutator and use the OnEventManagerCreated() function to register your custom EventListener to the EventManager. Here is an example of what that would look like:
 
 ```UnrealScript
 class MyCustomMutator extends EventMutator;
