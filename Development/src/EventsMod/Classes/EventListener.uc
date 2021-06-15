@@ -1,4 +1,4 @@
-// [Events Mod (2021)]
+// [Events Mod for Himeko Sutori (2021)]
 
 // Other mods should extend EventListener and override
 // these functions as necessary. EventListeners can be
@@ -54,3 +54,5 @@ function OnBattleVictory(bool PawnsCelebrate) {}
 
 // Called when the player starts resting on the world map
 function OnStartResting(int HoursToRest) {}
+
+function OnCauseEvent(optional Name event){}

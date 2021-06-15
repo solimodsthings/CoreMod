@@ -1,4 +1,4 @@
-// [Events Mod (2021)]
+// [Events Mod for Himeko Sutori (2021)]
 
 // This mutator class is meant for other mods to extend
 // as their mutator so they can register EventListeners.

@@ -1,4 +1,4 @@
-// [Events Mod for Himeko Sutori  (2021)]
+// [Events Mod for Himeko Sutori (2021)]
 
 // Replaces the game's player controller with an observable one.
 // Other mods can use this mod to listen for specific game events

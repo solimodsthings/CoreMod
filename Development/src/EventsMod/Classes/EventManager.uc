@@ -17,7 +17,9 @@ var array<PawnSnapshot> PawnSnapshots;
 var array<EventListener> Listeners;
 var bool FirstMapLoaded;
 var bool PostBeginPlayOccurred;
+var WorldInfo World;
 var RPGTacGame Game;
+
 
 function AddListener(EventListener listener)
 {
@@ -35,14 +37,13 @@ simulated event PostBeginPlay()
 {   
     local EventListener listener;
 
+    super.PostBeginPlay();
     PostBeginPlayOccurred = true;
 
     foreach Listeners(listener)
     {
         listener.OnInitialization(self);
     }
-
-    super.PostBeginPlay();
 }
 
 function NewAddEquipment(EquipmentInventory ReceivedEquipment)
@@ -66,7 +67,7 @@ function ReloadPawnIndex()
     local EventListener Listener;
 
     super.ReloadPawnIndex();
-    
+
     foreach Listeners(Listener)
     {
         Listener.OnPawnsInitialized(Army);
@@ -157,6 +158,8 @@ function int GetNumberOfEquipmentTypeInInventory(RPGTacEquipment EquipmentType)
 {
     local EventListener Listener;
 
+    `log(EquipmentType);
+
     foreach Listeners(Listener)
     {
         Listener.OnShopInventoryItemUpdate(EquipmentType);
@@ -181,11 +184,14 @@ function PlayVictory(bool PawnsCelebrate)
 function StartResting(int NewHoursToRest) 
 {
     local EventListener Listener;
+    
+    super.StartResting(NewHoursToRest);
+    
     foreach Listeners(Listener)
     {
         Listener.OnStartResting(NewHoursToRest);
     }
-    super.StartResting(NewHoursToRest);
+    
 }
 
 exec function GiveXP(int XP)
@@ -197,6 +203,9 @@ exec function GiveXP(int XP)
 exec function ChangeModes(int NewMode)
 {
     local EventListener Listener;
+
+    super.ChangeModes(NewMode);
+
     foreach Listeners(Listener)
     {
         if(NewMode == 2)
@@ -213,7 +222,18 @@ exec function ChangeModes(int NewMode)
             // TakePawnSnapshots();
         }
     }
-    super.ChangeModes(NewMode);
+}
+
+function CauseEvent(optional Name n)
+{
+    local EventListener listener;
+
+    super.CauseEvent(n);
+
+    foreach Listeners(listener)
+    {
+        listener.OnCauseEvent(n);
+    }
 }
 
 // Just a helper function for Modifier classes that can't 
