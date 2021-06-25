@@ -194,6 +194,49 @@ function StartResting(int NewHoursToRest)
     
 }
 
+// Let listeners know which pawns have been
+// defeated, but only if permadeath is still enabled.
+// Permadeath is enabled by default unless the
+// player turns it off via console command.
+function ClearDeadPawns()
+{
+    local RPGTacOptionsLoader OptionsLoader;
+    local RPGTacPawn DeadPawn;
+    local EventListener Listener;
+
+    if(DeadPawns.Length > 0)
+	{
+        if(CurrentMenu != none)
+        {
+            if(CurrentMenu.OptionsLoader != none)
+            {
+                OptionsLoader = CurrentMenu.OptionsLoader;
+            }
+            else
+            {
+                OptionsLoader = new class'RPGTacOptionsLoader';
+            }
+        }
+        else
+        {
+            OptionsLoader = new class'RPGTacOptionsLoader';
+        }
+
+        if(!OptionsLoader.DisablePermadeath)
+        {
+            foreach DeadPawns(DeadPawn)
+            {
+                foreach Listeners(Listener)
+                {
+                    Listener.OnPawnDefeated(DeadPawn, DeadPawn.ArmyController == self);
+                }
+            }
+        }
+	}
+
+    super.ClearDeadPawns();
+}
+
 exec function GiveXP(int XP)
 {
 	super.GiveXP(XP);
@@ -241,6 +284,11 @@ function CauseEvent(optional Name n)
 function RPGTacCharacterClass SpawnCharacterClassInstance(RPGTacCharacterClass ClassArchetype)
 {
     return spawn(class'RPGTacCharacterClass',,,,,ClassArchetype);
+}
+
+function RPGTacJournalEntry SpawnJournalEntryInstance()
+{
+    return spawn(class'RPGTacJournalEntry',,,,,,true);
 }
 
 DefaultProperties{

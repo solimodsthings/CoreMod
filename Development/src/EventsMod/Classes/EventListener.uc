@@ -40,6 +40,11 @@ function OnShopInventoryItemUpdate(RPGTacEquipment EquipmentType) {}
 // gets Events Mod to check all snapshots of character levels.
 function OnPawnLevelUp(RPGTacPawn LevelledUpPawn) {}
 
+// Called after any pawn is defeated in combat. This will also be called
+// when enemies are defeated so remember to check the IsAlly flag.
+// This function never gets called if permadeaths are disabled by player.
+function OnPawnDefeated(RPGTacPawn DefeatedPawn, bool IsAlly) {}
+
 // Called whenever the player enters the world map
 function OnEnterWorldMap() {}
 
