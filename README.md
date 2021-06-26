@@ -15,11 +15,15 @@ function OnEquipmentInventoryInitialized(Array<EquipmentInventory> EquimentInven
 function OnEquipmentInventoryItemUpdate(EquipmentInventory InventoryItem) {}
 function OnShopInventoryItemUpdate(RPGTacEquipment EquipmentType) {}
 function OnPawnLevelUp(RPGTacPawn LevelledUpPawn) {}
+function OnPawnDefeated(RPGTacPawn DefeatedPawn, bool IsAlly) {}
 function OnEnterWorldMap() {}
 function OnEnterArea() {}
 function OnBattleStart() {}
 function OnBattleVictory(bool PawnsCelebrate) {}
 function OnStartResting(int HoursToRest) {}
+function OnCauseEvent(optional Name event){}
+function JSonObject Serialize() {return none;}
+function Deserialize(JSonObject ListenerData) {}
 ```
 For example, here is a simple listener that outputs a message to the console whenever a pawn levels up:
 
