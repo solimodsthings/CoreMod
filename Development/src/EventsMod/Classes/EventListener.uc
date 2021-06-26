@@ -6,6 +6,11 @@
 // in an EventMutator.
 class EventListener extends Object;
 
+// This needs to be populated if a listener needs to use
+// the OnSerialize(), OnDeserialize(), or be reachable
+// from other mods.
+var string Id;
+
 // Called once an instance of a PlayerController in the game is created
 function OnInitialization(EventManager Manager) {}
 
@@ -61,3 +66,23 @@ function OnBattleVictory(bool PawnsCelebrate) {}
 function OnStartResting(int HoursToRest) {}
 
 function OnCauseEvent(optional Name event){}
+
+// Advanced callback. Called when the game is creating
+// a save file to write to disk. The JsobObject
+// provided can be populated by a mod. The inserted data
+// will then be included in the save file being created.
+//
+// This is an effective way for mods to store custom data
+// in save files. There are two things to know:
+//
+// 1) For safety purposes, only an empty JsonObject is provided 
+//    in the argument instead of a JsonObject containing all savefile data.
+//    This is done to prevent mods from accidentally deleting
+//    savestate information and bricking a player's game.
+//
+// 2) EventManager will insert the JsonObject using a key made up
+//    of the listener's Id field. So it is important for a listener
+//    to ensure this field is not empty.
+function JSonObject Serialize() {return none;}
+
+function Deserialize(JSonObject ListenerData) {}

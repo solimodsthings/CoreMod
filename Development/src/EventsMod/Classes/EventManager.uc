@@ -200,31 +200,14 @@ function StartResting(int NewHoursToRest)
 // player turns it off via console command.
 function ClearDeadPawns()
 {
-    local RPGTacOptionsLoader OptionsLoader;
     local RPGTacPawn DeadPawn;
     local EventListener Listener;
 
-    if(DeadPawns.Length > 0)
-	{
-        if(CurrentMenu != none)
+    if(CurrentMenu != none && CurrentMenu.OptionsLoader != none && !CurrentMenu.OptionsLoader.DisablePermadeath)
+    {
+        foreach DeadPawns(DeadPawn)
         {
-            if(CurrentMenu.OptionsLoader != none)
-            {
-                OptionsLoader = CurrentMenu.OptionsLoader;
-            }
-            else
-            {
-                OptionsLoader = new class'RPGTacOptionsLoader';
-            }
-        }
-        else
-        {
-            OptionsLoader = new class'RPGTacOptionsLoader';
-        }
-
-        if(!OptionsLoader.DisablePermadeath)
-        {
-            foreach DeadPawns(DeadPawn)
+            if(DeadPawn.CurrentHitPoints <= 0) // Check hp or we could get duplicates
             {
                 foreach Listeners(Listener)
                 {
@@ -232,8 +215,9 @@ function ClearDeadPawns()
                 }
             }
         }
-	}
 
+	}
+    
     super.ClearDeadPawns();
 }
 
@@ -278,6 +262,56 @@ function CauseEvent(optional Name n)
         listener.OnCauseEvent(n);
     }
 }
+
+// We override this to give listeners a chance
+// to also save information in save files. 
+function String Serialize() 
+{
+    local JSonObject Data;
+    local JsonObject ListenerData;
+    local EventListener Listener;
+
+    Data = class'JSonObject'.static.DecodeJson(super.Serialize());
+
+    foreach Listeners(Listener)
+    {
+        if(Listener.Id != "")
+        {
+            ListenerData = Listener.Serialize();
+            if(ListenerData != none)
+            {
+                Data.SetObject("Mod_" $ Listener.id, ListenerData);
+            }
+        }
+    }
+
+    return class'JSonObject'.static.EncodeJson(Data);
+}
+
+// We override this to permit mods/listeners to
+// load information they might have previously 
+// saved in save files. 
+function Deserialize(JSonObject Data)
+{
+    local JsonObject ListenerData;
+    local EventListener Listener;
+
+    super.Deserialize(Data);
+
+    foreach Listeners(Listener)
+    {
+        if(Listener.Id != "")
+        {
+            ListenerData = Data.GetObject("Mod_" $ Listener.id);
+            if(ListenerData != none)
+            {
+                Listener.Deserialize(ListenerData);
+            }
+        }
+    }
+
+}
+
 
 // Just a helper function for Modifier classes that can't 
 // instantiate actors themselves
