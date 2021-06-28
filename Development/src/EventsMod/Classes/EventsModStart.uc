@@ -8,7 +8,7 @@ class EventsModStart extends Mutator;
 
 function InitMutator(string Options, out string ErrorMessage)
 {
-	`log("MOD LOADED: Events Mod");
 	WorldInfo.Game.PlayerControllerClass=class'EventManager';
 	super.InitMutator(Options, ErrorMessage);
+	`log("Mod loaded: Events Mod");
 }

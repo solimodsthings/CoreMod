@@ -6,13 +6,19 @@
 // in an EventMutator.
 class EventListener extends Object;
 
-// This needs to be populated if a listener needs to use
-// the OnSerialize(), OnDeserialize(), or be reachable
-// from other mods.
+// This needs to be defined by a listener via DefaultProperties
+// especialliy if there is a need to use Serialize() and Deserialize() later.
+// This property is used to form the keyname for serialized listener data and
+// also used as the name of mod when the ListMods command is used.
 var string Id;
 
+// This property is set automatically when EventManager 
+// initializes all EventListeners. It is not safe to use
+// this property until OnInitialization() is called.
+var EventManager Manager;
+
 // Called once an instance of a PlayerController in the game is created
-function OnInitialization(EventManager Manager) {}
+function OnInitialization() {}
 
 // Called once it is "safe" to parse through all pawns in the game
 function OnPawnsInitialized(Array<RPGTacPawn> Pawns) {}
@@ -53,7 +59,7 @@ function OnPawnDefeated(RPGTacPawn DefeatedPawn, bool IsAlly) {}
 // Called whenever the player enters the world map
 function OnEnterWorldMap() {}
 
-// Called whenever the player enters an area that is not a world map
+// Called whenever the player enters an area that is not the world map
 function OnEnterArea() {}
 
 // Called when a battle begins
@@ -65,24 +71,33 @@ function OnBattleVictory(bool PawnsCelebrate) {}
 // Called when the player starts resting on the world map
 function OnStartResting(int HoursToRest) {}
 
+// This is primarily used to detect when kismet events are triggered
 function OnCauseEvent(optional Name event){}
 
-// Advanced callback. Called when the game is creating
-// a save file to write to disk. The JsobObject
-// provided can be populated by a mod. The inserted data
-// will then be included in the save file being created.
+function PreSerialize() {}
+
+// Called when the game is creating a save file to write
+// to disk. If you need information stored in the save
+// file, override this function and return a JsonObject
+// containing data you want saved.
 //
-// This is an effective way for mods to store custom data
-// in save files. There are two things to know:
-//
-// 1) For safety purposes, only an empty JsonObject is provided 
-//    in the argument instead of a JsonObject containing all savefile data.
-//    This is done to prevent mods from accidentally deleting
-//    savestate information and bricking a player's game.
-//
-// 2) EventManager will insert the JsonObject using a key made up
-//    of the listener's Id field. So it is important for a listener
-//    to ensure this field is not empty.
+// Ensure your listener's Id property is set to something
+// unique to your mod. The Id will be used to construct the
+// keyname for the JSonObject you return. If Id is an empty
+// string, any JSonObject you return here will be ignored.
 function JSonObject Serialize() {return none;}
 
+function PostSerialize() {}
+
+// Called when the game is loading a save file from disk
+// and information previously serialized by this listener
+// neds to be deserialized.
+//
+// You only need to override this function if you need to 
+// get information from save files that you stored previously
+// through the Serialize() function.
 function Deserialize(JSonObject ListenerData) {}
+
+// This function is called when a player uses command
+// 'tellmod' in the console to send this listener a message.
+function OnReceiveMessage(string Message) {}

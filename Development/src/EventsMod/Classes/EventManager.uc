@@ -28,7 +28,9 @@ function AddListener(EventListener listener)
     // Handle late additions
     if(PostBeginPlayOccurred)
     {
-        listener.OnInitialization(self);
+        listener.Manager = self;
+        listener.OnInitialization();
+        LogLoadedMod(listener);
     }
 }
 
@@ -42,7 +44,21 @@ simulated event PostBeginPlay()
 
     foreach Listeners(listener)
     {
-        listener.OnInitialization(self);
+        listener.Manager = self;
+        listener.OnInitialization();
+        LogLoadedMod(listener);
+    }
+}
+
+private function LogLoadedMod(EventListener listener)
+{
+    if(listener.Id != "")
+    {
+        `log("Mod loaded: " $ listener.Id);
+    }
+    else
+    {
+        `log("Mod loaded: Undefined ID");
     }
 }
 
@@ -271,6 +287,11 @@ function String Serialize()
     local JsonObject ListenerData;
     local EventListener Listener;
 
+    foreach Listeners(Listener)
+    {
+        Listener.PreSerialize();
+    }
+
     Data = class'JSonObject'.static.DecodeJson(super.Serialize());
 
     foreach Listeners(Listener)
@@ -283,6 +304,11 @@ function String Serialize()
                 Data.SetObject("Mod_" $ Listener.id, ListenerData);
             }
         }
+    }
+
+    foreach Listeners(Listener)
+    {
+        Listener.PostSerialize();
     }
 
     return class'JSonObject'.static.EncodeJson(Data);
@@ -312,6 +338,31 @@ function Deserialize(JSonObject Data)
 
 }
 
+// Lists the listeners of currently loaded
+// mods. Mods should ensure they set their ID
+// to something unique.
+exec function ListMods()
+{
+    local EventListener Listener;
+
+    `log("Mod loaded: Events Mod"); // Events Mod is not a listener so we need to list it explicitly
+    foreach Listeners(Listener)
+    {
+       LogLoadedMod(Listener); 
+    }
+}
+
+exec function TellMod(string ModId, string Message)
+{
+    local EventListener Listener;
+    foreach Listeners(Listener)
+    {
+        if(ModId != "" && ModId == Listener.Id)
+        {
+            Listener.OnReceiveMessage(Message); 
+        }
+    }
+}
 
 // Just a helper function for Modifier classes that can't 
 // instantiate actors themselves
@@ -329,4 +380,3 @@ DefaultProperties{
     FirstMapLoaded = false;
     PostBeginPlayOccurred = false;
 }
-
