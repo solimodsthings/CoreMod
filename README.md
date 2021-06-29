@@ -5,6 +5,11 @@ This is a utility mod for [Himeko Sutori](https://himekosutori.com/) that makes 
 
 Events Mod functions like a normal [mutator](https://docs.unrealengine.com/udk/Three/UT3Mods.html#Mutators) and is loaded through the game's [mutator loader](https://store.steampowered.com/news/app/669500/view/3043849366300043709).
 
+### Projects Using Events Mod
+* [More Classes](https://github.com/solimodsthings/MoreClassesMod)
+* [Fallen Allies](https://github.com/solimodsthings/FallenAlliesMod)
+* [Passive Experience Bonus](https://github.com/solimodsthings/PassiveExperienceBonus)
+
 # How does this work?
 When creating a new mod, create a subclass of EventListener and override the functions you wish to act on. You only need to override the functions you want to use.
 
@@ -101,4 +106,5 @@ MutatorsLoaded=EventsMod.EventsModStart,MyCustomMod.MyCustomMutator
 Events Mod needs to be first in the list so it is loaded first. Also, there can be no spaces between items in the list as whitespaces are not trimmed.
 
 For a fuller example, check out the [More Classes Mod](https://github.com/solimodsthings/MoreClassesMod).
+
 
