@@ -96,14 +96,25 @@ function ReloadPawnIndex()
 
 function bool AddPawn(RPGTacPawn NewPawn)
 {
+    local EventListener Listener; 
     local PawnSnapshot Snapshot;
+    local bool SuccessfullyAdded;
+
     Snapshot.Character = NewPawn;
     Snapshot.CharacterLevelSnapshot = NewPawn.CharacterLevel;
     PawnSnapshots.AddItem(Snapshot);
 
-    // `log("!!!!!!!!! Size of PawnSnapshots is " $ PawnSnapshots.Length);
+    SuccessfullyAdded = super.AddPawn(NewPawn);
 
-    return super.AddPawn(NewPawn);
+    if(SuccessfullyAdded)
+    {
+        foreach Listeners(Listener)
+        {
+            Listener.OnPawnAdded(NewPawn);
+        }
+    }
+
+    return SuccessfullyAdded;
 }
 
 // Checks for level up events

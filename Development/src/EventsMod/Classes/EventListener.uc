@@ -56,6 +56,10 @@ function OnPawnLevelUp(RPGTacPawn LevelledUpPawn) {}
 // This function never gets called if permadeaths are disabled by player.
 function OnPawnDefeated(RPGTacPawn DefeatedPawn, bool IsAlly) {}
 
+// Called when the game (successfully) adds a new pawn to the army.
+// This is a good function to use when you need to act on new recruits.
+function OnPawnAdded(RPGTacPawn AddedPawn) {}
+
 // Called whenever the player enters the world map
 function OnEnterWorldMap() {}
 
