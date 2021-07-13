@@ -9,6 +9,7 @@ Events Mod functions like a normal [mutator](https://docs.unrealengine.com/udk/T
 * [More Classes](https://github.com/solimodsthings/MoreClassesMod)
 * [Fallen Allies](https://github.com/solimodsthings/FallenAlliesMod)
 * [Passive Experience Bonus](https://github.com/solimodsthings/PassiveExperienceBonus)
+* [Find Command](https://github.com/solimodsthings/FindMod)
 
 # How does this work?
 When creating a new mod, create a subclass of EventListener and override the functions you wish to act on. You only need to override the functions you want to use.
@@ -86,7 +87,7 @@ function OnPawnLevelUp(RPGTacPawn LevelledUpPawn)
 }
 ```
 
-# How does I get my mod to load?
+# How do I get my mod to load?
 You'll need to also create a [mutator](https://docs.unrealengine.com/udk/Three/UT3Mods.html#Mutators) to take advantage of the game's mutator loader. Have your mutator be a subclass of EventMutator and then use the OnEventManagerCreated() function to register your custom EventListener to the EventManager. Here is an example of what that would look like:
 
 ```UnrealScript
