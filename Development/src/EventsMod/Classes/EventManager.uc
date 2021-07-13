@@ -48,6 +48,9 @@ simulated event PostBeginPlay()
         listener.OnInitialization();
         LogLoadedMod(listener);
     }
+
+    self.World = WorldInfo;
+	self.Game = RPGTacGame(WorldInfo.Game);
 }
 
 private function LogLoadedMod(EventListener listener)
@@ -368,11 +371,16 @@ exec function TellMod(string ModId, string Message)
     local EventListener Listener;
     foreach Listeners(Listener)
     {
-        if(ModId != "" && ModId == Listener.Id)
+        if(ModId != "" && Locs(ModId) == Locs(Listener.Id))
         {
             Listener.OnReceiveMessage(Message); 
         }
     }
+}
+
+exec function Mod(string ModId, string Message)
+{
+    TellMod(ModId, Message);
 }
 
 // Just a helper function for Modifier classes that can't 
