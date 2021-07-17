@@ -1,10 +1,10 @@
 // [Events Mod for Himeko Sutori (2021)]
 
-// This controller is an "observable" version of
-// RPGTacPlayerController. It keeps a list of
-// EventListeners and relays game events to them.
-// This class also tries to guess when certain events
-// occur (eg. level ups). 
+// This controller is the same as the base game's
+// RPGTacPlayerController except it maintains a list
+// of EventListeners and notifies them when certain
+// game events occur (player entering new area, character
+// level ups, battle victories, etc.)
 class EventManager extends RPGTacPlayerController;
 
 struct PawnSnapshot
@@ -23,7 +23,10 @@ var bool PostBeginPlayOccurred;
 var WorldInfo World;
 var RPGTacGame Game;
 
-
+// Used by other mods to add their listeners
+// to the game. Only listeners added through
+// this function are notified when specific
+// game events occur.
 function AddListener(EventListener listener)
 {
     Listeners.AddItem(listener);
@@ -37,7 +40,10 @@ function AddListener(EventListener listener)
     }
 }
 
-// Hooks
+// Override to add new logic. This is the closest thing
+// to a constructor or initializer function. We override
+// so we can tell other mods/listeners to initialize as
+// well.
 simulated event PostBeginPlay()
 {   
     local EventListener listener;
@@ -68,6 +74,7 @@ private function LogLoadedMod(EventListener listener)
     }
 }
 
+// Override to notified listeners when inventory is updated.
 function NewAddEquipment(EquipmentInventory ReceivedEquipment)
 {
     local EventListener listener;
@@ -80,7 +87,7 @@ function NewAddEquipment(EquipmentInventory ReceivedEquipment)
     super.NewAddEquipment(ReceivedEquipment);
 }
 
-// Also hooking into this function for now. It seems to be only called once after
+// Override. Hooking into this function as it seems to be only called once after
 // a SaveState is loaded so there should minimal performance impact.
 // Mods that want to work with untouched SaveStates will want to know 
 // about know when this occurs.
@@ -100,6 +107,7 @@ function ReloadPawnIndex()
 
 }
 
+// Override.
 function bool AddPawn(RPGTacPawn NewPawn)
 {
     local EventListener Listener; 
@@ -124,7 +132,7 @@ function bool AddPawn(RPGTacPawn NewPawn)
 }
 
 // Checks for level up events
-function TakePawnSnapshots()
+private function TakePawnSnapshots()
 {
     local EventListener Listener; 
     local PawnSnapshot Snapshot;
@@ -184,7 +192,7 @@ function TakePawnSnapshots()
 
 }
 
-// This gets called any time the shop inventory is refreshed
+// Override. This gets called any time the shop inventory is refreshed
 // so I worry about performance impact. But this is the only hook
 // I can find into the shop menu from PlayerController.
 function int GetNumberOfEquipmentTypeInInventory(RPGTacEquipment EquipmentType)
@@ -201,6 +209,7 @@ function int GetNumberOfEquipmentTypeInInventory(RPGTacEquipment EquipmentType)
 	return super.GetNumberOfEquipmentTypeInInventory(EquipmentType);
 }
 
+// Override
 function PlayVictory(bool PawnsCelebrate)
 {
     local EventListener Listener;
@@ -214,6 +223,7 @@ function PlayVictory(bool PawnsCelebrate)
     super.PlayVictory(PawnsCelebrate);
 }
 
+// Override
 function StartResting(int NewHoursToRest) 
 {
     local EventListener Listener;
@@ -227,7 +237,7 @@ function StartResting(int NewHoursToRest)
     
 }
 
-// Let listeners know which pawns have been
+// Override. Let listeners know which pawns have been
 // defeated, but only if permadeath is still enabled.
 // Permadeath is enabled by default unless the
 // player turns it off via console command.
@@ -254,12 +264,16 @@ function ClearDeadPawns()
     super.ClearDeadPawns();
 }
 
+// Override to make sure we catch levelups
+// that occur as a result of a player using this
+// console command.
 exec function GiveXP(int XP)
 {
 	super.GiveXP(XP);
     TakePawnSnapshots();
 }
 
+// Override.
 exec function ChangeModes(int NewMode)
 {
     local EventListener Listener;
@@ -284,6 +298,7 @@ exec function ChangeModes(int NewMode)
     }
 }
 
+// Override
 function CauseEvent(optional Name n)
 {
     local EventListener listener;
@@ -296,8 +311,9 @@ function CauseEvent(optional Name n)
     }
 }
 
-// We override this to give listeners a chance
-// to also save information in save files. 
+// Override to give listeners a chance to also save their own information
+// in save files. Mods/listeners are not permitted to touch information
+// that the base game or other mods/listeners try to save.
 function String Serialize() 
 {
     local JSonObject Data;
@@ -338,9 +354,8 @@ function String Serialize()
     return class'JSonObject'.static.EncodeJson(Data);
 }
 
-// We override this to permit mods/listeners to
-// load information they might have previously 
-// saved in save files. 
+// Override to permit mods/listeners to load information
+// they might have previously saved in save files. 
 function Deserialize(JSonObject Data)
 {
     local JsonObject ListenerData;
@@ -362,9 +377,8 @@ function Deserialize(JSonObject Data)
 
 }
 
-// Lists the listeners of currently loaded
-// mods. Mods should ensure they set their ID
-// to something unique.
+// New command. Lists all listeners of currently loaded
+// mods. Mods should ensure they set their ID to something unique.
 exec function ListMods()
 {
     local EventListener Listener;
@@ -376,6 +390,9 @@ exec function ListMods()
     }
 }
 
+// New console command. Sends a command or message to the a mod with
+// the specified ID. This is necessary as mods cannot create their
+// own console command.
 exec function TellMod(string ModId, string Message)
 {
     local EventListener Listener;
@@ -388,6 +405,7 @@ exec function TellMod(string ModId, string Message)
     }
 }
 
+// New console command. An alias for Tellmod.
 exec function Mod(string ModId, string Message)
 {
     TellMod(ModId, Message);
@@ -395,19 +413,22 @@ exec function Mod(string ModId, string Message)
 
 // Just a helper function for Modifier classes that can't 
 // instantiate actors themselves
+// TODO: Genericize this function?
 function RPGTacCharacterClass SpawnCharacterClassInstance(RPGTacCharacterClass ClassArchetype)
 {
     return spawn(class'RPGTacCharacterClass',,,,,ClassArchetype);
 }
 
+// A helper function
+// TODO: Genericize this function?
 function RPGTacJournalEntry SpawnJournalEntryInstance()
 {
     return spawn(class'RPGTacJournalEntry',,,,,,true);
 }
 
 DefaultProperties{
-    FirstMapLoaded = false;
-    PostBeginPlayOccurred = false;
+    FirstMapLoaded = false
+    PostBeginPlayOccurred = false
     ControllerNameOverride = "main_base.TheWorld:PersistentLevel.RPGTacPlayerController_1"
     ControllerClassOverride = "RPGTacGame.Default__RPGTacPlayerController"
 }
