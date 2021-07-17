@@ -13,6 +13,9 @@ struct PawnSnapshot
     var int CharacterLevelSnapshot;
 };
 
+var const string ControllerNameOverride;
+var const string ControllerClassOverride;
+
 var array<PawnSnapshot> PawnSnapshots;
 var array<EventListener> Listeners;
 var bool FirstMapLoaded;
@@ -308,6 +311,13 @@ function String Serialize()
 
     Data = class'JSonObject'.static.DecodeJson(super.Serialize());
 
+    // We ensure that the save file records RPGTacPlayerController as the current
+    // player controller instead of EventManager. This will let players remove Events Mod
+    // without bricking their save file
+    Data.SetStringValue("Name", ControllerNameOverride); 
+    Data.SetStringValue("ObjectArchetype", ControllerClassOverride);
+
+    // Give all listeners/mods a chance to include their own data in the save file
     foreach Listeners(Listener)
     {
         if(Listener.Id != "")
@@ -398,4 +408,6 @@ function RPGTacJournalEntry SpawnJournalEntryInstance()
 DefaultProperties{
     FirstMapLoaded = false;
     PostBeginPlayOccurred = false;
+    ControllerNameOverride = "main_base.TheWorld:PersistentLevel.RPGTacPlayerController_1"
+    ControllerClassOverride = "RPGTacGame.Default__RPGTacPlayerController"
 }
