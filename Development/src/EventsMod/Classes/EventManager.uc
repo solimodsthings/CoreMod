@@ -13,15 +13,16 @@ struct PawnSnapshot
     var int CharacterLevelSnapshot;
 };
 
-var const string ControllerNameOverride;
-var const string ControllerClassOverride;
-
 var array<PawnSnapshot> PawnSnapshots;
 var array<EventListener> Listeners;
 var bool FirstMapLoaded;
 var bool PostBeginPlayOccurred;
 var WorldInfo World;
 var RPGTacGame Game;
+
+var string BaseControllerName;
+var string BaseControllerClass;
+var bool SaveAsBaseController;
 
 // Used by other mods to add their listeners
 // to the game. Only listeners added through
@@ -60,6 +61,12 @@ simulated event PostBeginPlay()
 
     self.World = WorldInfo;
 	self.Game = RPGTacGame(WorldInfo.Game);
+
+    // I don't know why these values remain blank when set in DefaultProperties.
+    // PostBeginPlay() is the next best place to put this.
+    BaseControllerName = "main_base.TheWorld:PersistentLevel.RPGTacPlayerController_1";
+    BaseControllerClass = "RPGTacGame.Default__RPGTacPlayerController";
+    SaveAsBaseController = false; // False by default or else mods won't see calls to Deserialize() 
 }
 
 private function LogLoadedMod(EventListener listener)
@@ -156,30 +163,6 @@ private function TakePawnSnapshots()
 
     }    
 
-    // Is there a better way to clean up snapshots of
-    // pawns that are no longer in the army?
-    // This method doesn't work:
-    /*
-    for(i = PawnSnapshots.Length - 1; i >= 0; i--)
-    {
-        ExistsInArmy = false;
-        foreach Army(ArmyPawn)
-        {
-            if(PawnSnapshots[i].Character == ArmyPawn)
-            {
-                ExistsInArmy = true;
-                break;
-            }
-        }
-
-        if(!ExistsInArmy)
-        {
-            `log("Removed pawn snapshot for " $ PawnSnapshots[i].Character.CharacterName);
-            PawnSnapshots.Remove(i,1);
-        }
-
-    }
-    */
     PawnSnapshots.Length = 0; // Clear the array
     foreach Army(ArmyPawn)
     {
@@ -187,8 +170,6 @@ private function TakePawnSnapshots()
         Snapshot.CharacterLevelSnapshot = ArmyPawn.CharacterLevel;
         PawnSnapshots.AddItem(Snapshot);
     }
-
-    // `log("!!!!!!!!! Size of PawnSnapshots is " $ PawnSnapshots.Length);
 
 }
 
@@ -327,12 +308,15 @@ function String Serialize()
 
     Data = class'JSonObject'.static.DecodeJson(super.Serialize());
 
-    // We ensure that the save file records RPGTacPlayerController as the current
-    // player controller instead of EventManager. This will let players remove Events Mod
-    // without bricking their save file
-    Data.SetStringValue("Name", ControllerNameOverride); 
-    Data.SetStringValue("ObjectArchetype", ControllerClassOverride);
-
+    if(SaveAsBaseController)
+    {
+        // If allowed, we make sure that this player controller is recorded as a
+        // RPGTacPlayerController in the save file. This will let players remove Events Mod
+        // without bricking their save file.
+        Data.SetStringValue("Name", BaseControllerName); 
+        Data.SetStringValue("ObjectArchetype", BaseControllerClass);
+    }
+    
     // Give all listeners/mods a chance to include their own data in the save file
     foreach Listeners(Listener)
     {
@@ -341,7 +325,7 @@ function String Serialize()
             ListenerData = Listener.Serialize();
             if(ListenerData != none)
             {
-                Data.SetObject("Mod_" $ Listener.id, ListenerData);
+                Data.SetObject("Mod_" $ Listener.Id, ListenerData);
             }
         }
     }
@@ -367,7 +351,7 @@ function Deserialize(JSonObject Data)
     {
         if(Listener.Id != "")
         {
-            ListenerData = Data.GetObject("Mod_" $ Listener.id);
+            ListenerData = Data.GetObject("Mod_" $ Listener.Id);
             if(ListenerData != none)
             {
                 Listener.Deserialize(ListenerData);
@@ -375,6 +359,18 @@ function Deserialize(JSonObject Data)
         }
     }
 
+}
+
+// Potential new hook for mods to use.
+function HandleMouseInput(EMouseEvent MouseEvent, EInputEvent InputEvent)
+{
+    super.HandleMouseInput(MouseEvent, InputEvent);
+}
+
+// Potential new hook for mods to use.
+function DrawHUD(HUD hud)
+{
+    super.DrawHUD(hud);
 }
 
 // New command. Lists all listeners of currently loaded
@@ -411,24 +407,35 @@ exec function Mod(string ModId, string Message)
     TellMod(ModId, Message);
 }
 
+
+// New console command. Used when a player has a modded campaign and wants
+// to remove EventsMod without bricking their save file.
+//
+// The player needs to call 'UseBaseControllerWhenSaving True' and then
+// save their campaign once before removing EventsMod.
+exec function UseBaseControllerWhenSaving(bool Option)
+{
+    SaveAsBaseController = Option;
+}
+
 // Just a helper function for Modifier classes that can't 
 // instantiate actors themselves
-// TODO: Genericize this function?
+/*
 function RPGTacCharacterClass SpawnCharacterClassInstance(RPGTacCharacterClass ClassArchetype)
 {
     return spawn(class'RPGTacCharacterClass',,,,,ClassArchetype);
 }
 
+
 // A helper function
-// TODO: Genericize this function?
 function RPGTacJournalEntry SpawnJournalEntryInstance()
 {
     return spawn(class'RPGTacJournalEntry',,,,,,true);
 }
+ */
+
 
 DefaultProperties{
     FirstMapLoaded = false
     PostBeginPlayOccurred = false
-    ControllerNameOverride = "main_base.TheWorld:PersistentLevel.RPGTacPlayerController_1"
-    ControllerClassOverride = "RPGTacGame.Default__RPGTacPlayerController"
 }
