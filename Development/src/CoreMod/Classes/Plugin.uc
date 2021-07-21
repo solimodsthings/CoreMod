@@ -1,10 +1,10 @@
-// [Events Mod for Himeko Sutori (2021)]
+// [Core Mod for Himeko Sutori (2021)]
 
-// Other mods should extend EventListener and override
-// these functions as necessary. EventListeners can be
-// added to an EventManager through OnEventManagerCreated()
-// in an EventMutator.
-class EventListener extends Object;
+// Extend this class in your own mods and override
+// the functions as necessary. Plugins should be
+// added to the CorePlayerController through the OnStart()
+// function in ModStart.
+class Plugin extends Object;
 
 // This needs to be defined by a listener via DefaultProperties
 // especialliy if there is a need to use Serialize() and Deserialize() later.
@@ -12,10 +12,10 @@ class EventListener extends Object;
 // also used as the name of mod when the ListMods command is used.
 var string Id;
 
-// This property is set automatically when EventManager 
-// initializes all EventListeners. It is not safe to use
+// This property is set automatically when CorePlayerController 
+// initializes all Plugins. It is not safe to use
 // this property until OnInitialization() is called.
-var EventManager Manager;
+var CorePlayerController Core;
 
 // Called once an instance of a PlayerController in the game is created
 function OnInitialization() {}
@@ -35,7 +35,7 @@ function OnShopInventoryItemUpdate(RPGTacEquipment EquipmentType) {}
 // Called when a character levels up. If a character levels up
 // during battle, this function isn't called until you win.
 //
-// Events Mod doesn't have any direct hooks into RPGTacPawn
+// Core Mod doesn't have any direct hooks into RPGTacPawn
 // and relies on periodically taking snapshots of character levels
 // and checking whether they go up or not. OnPawnLevelUp() events
 // are checked after you win a battle or if you use the givexp console
@@ -45,10 +45,10 @@ function OnShopInventoryItemUpdate(RPGTacEquipment EquipmentType) {}
 // But it will eventually be called the next time you win a battle regardless
 // if you level up again or not in that battle.
 //
-// If you want to force Events Mod to check for level ups without winning
+// If you want to force Core Mod to check for level ups without winning
 // a battle you can run command "givexp 0" while a character is selected in the 
 // lance setup menu. This command gives that character 0 experience points, but
-// gets Events Mod to check all snapshots of character levels.
+// gets Core Mod to check all snapshots of character levels.
 function OnPawnLevelUp(RPGTacPawn LevelledUpPawn) {}
 
 // Called after any pawn is defeated in combat. This will also be called
