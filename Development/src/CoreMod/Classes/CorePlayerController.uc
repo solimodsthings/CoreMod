@@ -361,16 +361,30 @@ function Deserialize(JSonObject Data)
 
 }
 
-// Potential new hook for mods to use.
+// Override to permit mods to respond to mouse events.
 function HandleMouseInput(EMouseEvent MouseEvent, EInputEvent InputEvent)
 {
+    local Plugin Plugin;
+
     super.HandleMouseInput(MouseEvent, InputEvent);
+
+    foreach Plugins(Plugin)
+    {
+        Plugin.OnHandleMouseInput(MouseEvent, InputEvent);
+    }
 }
 
-// Potential new hook for mods to use.
+// Override to permit mods to draw to screen.
 function DrawHUD(HUD Hud)
 {
+    local Plugin Plugin;
+    
     super.DrawHUD(Hud);
+    
+    foreach Plugins(Plugin)
+    {
+        Plugin.OnDrawHUD(Hud);
+    }
 }
 
 

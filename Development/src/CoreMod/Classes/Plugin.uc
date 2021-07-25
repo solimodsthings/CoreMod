@@ -105,3 +105,9 @@ function Deserialize(JSonObject ListenerData) {}
 // This function is called when a player uses command
 // 'tellmod' in the console to send this listener a message.
 function OnReceiveMessage(string Message) {}
+
+// Used to handle mouse events.
+function OnHandleMouseInput(EMouseEvent MouseEvent, EInputEvent InputEvent) {}
+
+// Used to draw directly to screen.
+function OnDrawHUD(HUD Hud) {}
