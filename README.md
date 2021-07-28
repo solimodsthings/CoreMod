@@ -99,14 +99,14 @@ function OnDrawHUD(HUD Hud) {}
 ```
 
 # Example
-For example, here is a simple listener that outputs a message to the console whenever a pawn levels up:
+For example, here is a simple mod that outputs a message to the console whenever a pawn levels up:
 
 ```UnrealScript
 class LevelUpPlugin extends Plugin;
 
 function OnPawnLevelUp(RPGTacPawn LevelledUpPawn) 
 {
-  `log(RPGTacPawn.CharacterName $ " just levelled up!");
+  `log(LevelledUpPawn.CharacterName $ " just levelled up!");
 }
 ```
 
