@@ -3,16 +3,16 @@
 # Overview
 Core Mod is a utility mod for [Himeko Sutori](https://himekosutori.com/). It does not add new content to the game, but is a dependency for some other mods to function. It's main purpose is to detect when specific in-game events occur (level ups, battle victories, etc.) and then notify other mods what has happened.
 
-Core Mod replaces the game's RPGTacPlayerController instance with a CorePlayerController instance. CorePlayerController behaves identically to RPGTacPlayerController except it supports mod Plugins and notifies those Plugins whenver certain game events occur. It is possible to make mods without knowing the internal workings of the game this way and it also allows compatibility between multiple mods that need to modify RPGTacPlayerController in some way. 
+Core Mod replaces the game's ```RPGTacPlayerController``` instance with a ```CorePlayerController``` instance. ```CorePlayerController``` behaves identically to ```RPGTacPlayerController``` except it supports mod ```Plugins``` and notifies those ```Plugins``` whenver certain game events occur. It is possible to make mods without knowing the internal workings of the game this way and it also allows compatibility between multiple mods that need to modify ```RPGTacPlayerController``` in some way. 
 
-Core Mod is available in the Steam Workshop. Simply subscribe to the mod if it is required for another mod you're looking to use 
+Core Mod is available in the Steam Workshop. Simply subscribe to the mod if it is required for another mod you're looking to use.
 
 # Information for Developers
 
 ## How does this work?
-When creating a new mod, create a subclass of Plugin and override the functions you wish to act on. You only need to override the functions you want to use.
+When creating a new mod, create a subclass of ```Plugin``` and override the functions you wish to act on. You only need to override the functions you want to use.
 
-The Plugin class currently has the following callback functions available for mods:
+The ```Plugin``` class currently has the following callback functions available for mods:
 
 ## Functions for modifying characters
 ```UnrealScript
@@ -111,7 +111,7 @@ function OnPawnLevelUp(RPGTacPawn LevelledUpPawn)
 ```
 
 ## How do I get my mod loaded into my game?
-You'll need to also create a [mutator](https://docs.unrealengine.com/udk/Three/UT3Mods.html#Mutators) to take advantage of the game's mutator loader. Have your mutator be a subclass of ModStart and then use the OnStart() function to register your custom Plugin to the CorePlayerController. Here is an example of what that would look like:
+You'll need to also create a [mutator](https://docs.unrealengine.com/udk/Three/UT3Mods.html#Mutators) to take advantage of the game's mutator loader. Have your mutator be a subclass of ```ModStart``` and then use the ```OnStart()``` function to register your custom ```Plugin``` to the ```CorePlayerController```. Here is an example of what that would look like:
 
 ```UnrealScript
 class MyCustomStart extends ModStart;
@@ -122,7 +122,7 @@ function OnStart(CorePlayerController Core)
 }
 ```
 
-You then need to add the CoreMod's mutator and your own mutator to your RPGTacMods.ini file like so:
+You then need to add the CoreMod's mutator and your own mutator to your ```RPGTacMods.ini``` file like so:
 ```
 [rpgtacgame.RPGTacMutatorLoader]
 MutatorsLoaded=CoreMod.CoreStart,MyCustomMod.MyCustomStart
