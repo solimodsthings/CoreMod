@@ -1,15 +1,15 @@
+![Banner](https://i.imgur.com/912nCk0.png)
+
 # Overview
-CoreMod is a utility mod for [Himeko Sutori](https://himekosutori.com/) that makes it easier to build other mods. CoreMod functions by replacing the game's RPGTacPlayerController instance with a CorePlayerController instance. CorePlayerController acts identically to RPGTacPlayerController except it supports mod Plugins and notifies those Plugins whenver certain game events occur. Thus, CoreMod makes it possible to make mods without knowing the internal workings of the game and it also allows compatibility between advanced mods that need to modify RPGTacPlayerController. 
+Core Mod is a utility mod for [Himeko Sutori](https://himekosutori.com/). It does not add new content to the game, but is a dependency for some other mods to function. It's main purpose is to detect when specific in-game events occur (level ups, battle victories, etc.) and then notify other mods what has happened.
 
-CoreMod is loaded through the game's [mutator loader](https://store.steampowered.com/news/app/669500/view/3043849366300043709).
+Core Mod replaces the game's RPGTacPlayerController instance with a CorePlayerController instance. CorePlayerController behaves identically to RPGTacPlayerController except it supports mod Plugins and notifies those Plugins whenver certain game events occur. It is possible to make mods without knowing the internal workings of the game this way and it also allows compatibility between multiple mods that need to modify RPGTacPlayerController in some way. 
 
-### Projects Using CoreMod
-* [More Classes](https://github.com/solimodsthings/MoreClassesMod)
-* [Fallen Allies](https://github.com/solimodsthings/FallenAlliesMod)
-* [Passive Experience Bonus](https://github.com/solimodsthings/PassiveExperienceBonus)
-* [Find Command](https://github.com/solimodsthings/FindMod)
+Core Mod is available in the Steam Workshop. Simply subscribe to the mod if it is required for another mod you're looking to use 
 
-# How does this work?
+# Information for Developers
+
+## How does this work?
 When creating a new mod, create a subclass of Plugin and override the functions you wish to act on. You only need to override the functions you want to use.
 
 The Plugin class currently has the following callback functions available for mods:
@@ -98,7 +98,7 @@ function OnHandleMouseInput(EMouseEvent MouseEvent, EInputEvent InputEvent) {}
 function OnDrawHUD(HUD Hud) {}
 ```
 
-# Example
+## Example
 For example, here is a simple mod that outputs a message to the console whenever a pawn levels up:
 
 ```UnrealScript
@@ -110,7 +110,7 @@ function OnPawnLevelUp(RPGTacPawn LevelledUpPawn)
 }
 ```
 
-# How do I get my mod loaded into my game?
+## How do I get my mod loaded into my game?
 You'll need to also create a [mutator](https://docs.unrealengine.com/udk/Three/UT3Mods.html#Mutators) to take advantage of the game's mutator loader. Have your mutator be a subclass of ModStart and then use the OnStart() function to register your custom Plugin to the CorePlayerController. Here is an example of what that would look like:
 
 ```UnrealScript
@@ -127,7 +127,7 @@ You then need to add the CoreMod's mutator and your own mutator to your RPGTacMo
 [rpgtacgame.RPGTacMutatorLoader]
 MutatorsLoaded=CoreMod.CoreStart,MyCustomMod.MyCustomStart
 ```
-CoreMod needs to be first in the list so it is loaded first. Also, there can be no spaces between items in the list as whitespaces are not trimmed.
+You can also subscribe to Core Mod in the Steam Workshop and use the HS Mod Loader now bundled with Himeko Sutori to enable it. CoreMod needs to be first in the list so it is loaded first.
 
 For a fuller example, check out the [More Classes Mod](https://github.com/solimodsthings/MoreClassesMod).
 
