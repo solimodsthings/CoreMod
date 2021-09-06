@@ -69,6 +69,12 @@ function OnEnterArea() {}
 // Called when a battle begins
 function OnBattleStart() {}
 
+// Called when a play turn starts
+function OnBattleTurnStart() {}
+
+// Called when a play turn ends
+function OnBattleTurnEnd() {}
+
 // Called when a battle ends and you won
 function OnBattleVictory(bool PawnsCelebrate) {}
 

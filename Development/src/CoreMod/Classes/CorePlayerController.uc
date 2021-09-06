@@ -279,6 +279,29 @@ exec function ChangeModes(int NewMode)
     }
 }
 
+function StartTurn()
+{
+    local Plugin Plugin;
+    super.StartTurn();
+
+    foreach Plugins(Plugin)
+    {
+        Plugin.OnBattleTurnStart();
+    }
+
+}
+
+function EndTurn()
+{
+    local Plugin Plugin;
+    super.EndTurn();
+
+    foreach Plugins(Plugin)
+    {
+        Plugin.OnBattleTurnEnd();
+    }
+}
+
 // Override
 function CauseEvent(optional Name n)
 {
@@ -387,7 +410,6 @@ function DrawHUD(HUD Hud)
     }
 }
 
-
 // New command. Lists all plugins of currently loaded
 // mods. Mods should ensure they set their ID to something unique.
 exec function ListMods()
@@ -422,7 +444,6 @@ exec function Mod(string ModId, string Message)
     TellMod(ModId, Message);
 }
 
-
 // New console command. Used when a player has a modded campaign and wants
 // to remove EventsMod without bricking their save file.
 //
@@ -432,23 +453,6 @@ exec function UseBaseControllerWhenSaving(bool Option)
 {
     SaveAsBaseController = Option;
 }
-
-// Just a helper function for Modifier classes that can't 
-// instantiate actors themselves
-/*
-function RPGTacCharacterClass SpawnCharacterClassInstance(RPGTacCharacterClass ClassArchetype)
-{
-    return spawn(class'RPGTacCharacterClass',,,,,ClassArchetype);
-}
-
-
-// A helper function
-function RPGTacJournalEntry SpawnJournalEntryInstance()
-{
-    return spawn(class'RPGTacJournalEntry',,,,,,true);
-}
- */
-
 
 DefaultProperties{
     FirstMapLoaded = false
