@@ -180,7 +180,7 @@ function int GetNumberOfEquipmentTypeInInventory(RPGTacEquipment EquipmentType)
 {
     local Plugin Plugin;
 
-    `log(EquipmentType);
+    // `log(EquipmentType);
 
     foreach Plugins(Plugin)
     {
