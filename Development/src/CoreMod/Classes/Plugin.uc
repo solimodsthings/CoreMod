@@ -69,14 +69,22 @@ function OnEnterArea() {}
 // Called when a battle begins
 function OnBattleStart() {}
 
-// Called when a play turn starts
+// Only called when the first battle turn starts
+// Useful for applying buffs to deployed pawns only
+function OnBattleFirstTurnStart() {}
+
+// Called when any battle turn starts,
+// including the first battle turn
 function OnBattleTurnStart() {}
 
-// Called when a play turn ends
+// Called when a battle turn ends
 function OnBattleTurnEnd() {}
 
 // Called when a battle ends and you won
 function OnBattleVictory(bool PawnsCelebrate) {}
+
+// Called when a battle ends because all squads retreated
+function OnBattleRetreatAll() {}
 
 // Called when the player starts resting on the world map
 function OnStartResting(int HoursToRest) {}

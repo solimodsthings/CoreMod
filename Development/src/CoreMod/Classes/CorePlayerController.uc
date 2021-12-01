@@ -23,6 +23,7 @@ var RPGTacGame Game;
 var string BaseControllerName;
 var string BaseControllerClass;
 var bool SaveAsBaseController;
+var bool IsFirstBattleTurn;
 
 // Used by other mods to add their plugins
 // to the game. Only plugins added through
@@ -131,6 +132,7 @@ function bool AddPawn(RPGTacPawn NewPawn)
     {
         foreach Plugins(Plugin)
         {
+            // `log("Calling OnPawnAdded() on plugin '" $ Plugin.Id $ "'");
             Plugin.OnPawnAdded(NewPawn);
         }
     }
@@ -204,6 +206,23 @@ function PlayVictory(bool PawnsCelebrate)
     super.PlayVictory(PawnsCelebrate);
 }
 
+//Override
+function WithdrawSquad(bool Withdraw)
+{
+    local Plugin Plugin;
+    
+    super.WithdrawSquad(Withdraw);
+    
+    if(DeployedSquads.Length == 0)
+    {
+        foreach Plugins(Plugin)
+        {
+            Plugin.OnBattleRetreatAll();
+        }
+    }
+    
+}
+
 // Override
 function StartResting(int NewHoursToRest) 
 {
@@ -261,6 +280,12 @@ exec function ChangeModes(int NewMode)
 
     super.ChangeModes(NewMode);
 
+    if(NewMode == 9)
+    {
+        // Next turn will be the first turn
+        IsFirstBattleTurn = true;
+    }
+
     foreach Plugins(Plugin)
     {
         if(NewMode == 2)
@@ -277,12 +302,24 @@ exec function ChangeModes(int NewMode)
             // TakePawnSnapshots();
         }
     }
+
 }
 
+// Override
 function StartTurn()
 {
     local Plugin Plugin;
     super.StartTurn();
+
+    if(IsFirstBattleTurn)
+    {
+        IsFirstBattleTurn = false;
+
+        foreach Plugins(Plugin)
+        {
+            Plugin.OnBattleFirstTurnStart();
+        }
+    }
 
     foreach Plugins(Plugin)
     {
@@ -291,6 +328,7 @@ function StartTurn()
 
 }
 
+// Override
 function EndTurn()
 {
     local Plugin Plugin;
