@@ -7,9 +7,11 @@ class ModStart extends Mutator;
 
 var bool PlayerControllerExists;
 
-// Meant for other mods to override and add their plugins to
-// CorePlayerCtonroller.
+// For plugins of mods specific to the base campaign only
 function OnStart(CorePlayerController Core){}
+
+// For plugins of mods specific to the SRV campaign only
+function OnSrvStart(CoreSrvPlayerController Core){}
 
 function InitMutator(string Options, out string ErrorMessage)
 {
@@ -18,13 +20,24 @@ function InitMutator(string Options, out string ErrorMessage)
 
 function bool CheckReplacement(Actor Other)
 {
+	local PlayerController Controller;
+
 	if(!PlayerControllerExists)
 	{
-		if(WorldInfo.Game.GetALocalPlayerController() != none)
+		Controller = WorldInfo.Game.GetALocalPlayerController();
+
+		if(Controller != none && CorePlayerController(Controller) != none)
 		{
 			PlayerControllerExists = true;
-			OnStart(CorePlayerController(WorldInfo.Game.GetALocalPlayerController()));
+			OnStart(CorePlayerController(Controller));
 		}
+
+		// TODO: Once SRVPlayerController becomes available call
+		// if(Controller != none && CoreSrvPlayerController(Controller) != none)
+		// {
+		//	  PlayerControllerExists = true;
+		//	  OnStart(CoreSrvPlayerController(Controller));
+		// }
 	}
 
 	return super.CheckReplacement(Other);

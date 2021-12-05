@@ -5,6 +5,11 @@
 // of Plugins and notifies them when certain
 // game events occur (player entering new area, character
 // level ups, battle victories, etc.)
+//
+// Warning: Class name cannot change without breaking save files.
+// If the class name needs to change, create a class with the old name
+// that extends the class with the new name.
+//
 class CorePlayerController extends RPGTacPlayerController;
 
 struct PawnSnapshot
@@ -23,6 +28,7 @@ var RPGTacGame Game;
 var string BaseControllerName;
 var string BaseControllerClass;
 var bool SaveAsBaseController;
+
 var bool IsFirstBattleTurn;
 
 // Used by other mods to add their plugins
