@@ -43,7 +43,11 @@ function UpdateJournal()
 
         if(Mutator != none)
         {
-            if(HasGameType(Mutator.IntendedGameTypes, "RPGTacGame.RPGTacGame"))
+            if(Mutator.IntendedGameTypes.Length == 0)
+            {
+                UndeclaredMutatorNames.AddItem(MutatorName);    
+            }
+            else if(HasGameType(Mutator.IntendedGameTypes, "RPGTacGame.RPGTacGame"))
             {
                 CompatibleMutatorNames.AddItem(MutatorName);
             }
@@ -93,7 +97,7 @@ function UpdateJournal()
     }
 
     CustomEntry.EntryInfo $= "\n";
-    CustomEntry.EntryInfo $= "[Plugins Active in Campaign]\n";
+    CustomEntry.EntryInfo $= "[Plugins Active in Current Campaign]\n";
     foreach Core.Plugins(Plugin)
     {
         CustomEntry.EntryInfo $= " + " $ Plugin.Id $ "\n";
@@ -105,7 +109,7 @@ function UpdateJournal()
     }
 
     CustomEntry.EntryInfo $= "\n";
-    CustomEntry.EntryInfo $= "[Plugins Incompatible with Campaign]\n";
+    CustomEntry.EntryInfo $= "[Plugins Incompatible with Current Campaign]\n";
     foreach Core.IncompatibleModPluginNames(IncompatiblePluginName)
     {
         CustomEntry.EntryInfo $= " + " $ IncompatiblePluginName;
