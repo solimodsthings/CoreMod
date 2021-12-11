@@ -18,8 +18,10 @@ struct PawnSnapshot
     var int CharacterLevelSnapshot;
 };
 
+var CoreModJournalPlugin ModInformation;
 var array<PawnSnapshot> PawnSnapshots;
 var array<Plugin> Plugins;
+var array<string> IncompatibleModPluginNames;
 var bool FirstMapLoaded;
 var bool PostBeginPlayOccurred;
 var WorldInfo World;
@@ -37,15 +39,43 @@ var bool IsFirstBattleTurn;
 // game events occur.
 function AddPlugin(Plugin Plugin)
 {
-    Plugins.AddItem(Plugin);
-
-    // Handle late additions
-    if(PostBeginPlayOccurred)
+    if(!PluginExists(Plugin))
     {
-        Plugin.Core = self;
-        Plugin.OnInitialization();
-        LogLoadedMod(Plugin);
+        Plugins.AddItem(Plugin);
+        // `log("Added mod plugin: " $ Plugin.Id);  // DEBUG
+
+        // Handle late additions
+        if(PostBeginPlayOccurred)
+        {
+            // `log("Added plugin, but PostBeginPlay already occurred");
+            InitializePlugin(Plugin);
+        }
+
+        if(ModInformation != none)
+        {
+            ModInformation.UpdateJournal();
+        }
     }
+    else
+    {
+        `log("Cannot add mod plugin: " $ Plugin.Id $ " (it already exists)");
+    }
+
+}
+
+private function bool PluginExists(Plugin Plugin)
+{
+    local Plugin ExistingPlugin;
+
+    foreach Plugins(ExistingPlugin)
+    {
+        if(ExistingPlugin == Plugin || ExistingPlugin.Id == Plugin.Id)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 // Override to add new logic. This is the closest thing
@@ -59,11 +89,15 @@ simulated event PostBeginPlay()
     super.PostBeginPlay();
     PostBeginPlayOccurred = true;
 
+    // This is a special mod plugin that comes with CoreMod
+    // whose only purpose is to display loaded mod information in-game.
+    ModInformation = new class'CoreModJournalPlugin';
+    self.AddPlugin(ModInformation);
+    // ModInformation.UpdateJournal(); // Uncomment if journal not updating enough at initialization
+
     foreach Plugins(Plugin)
     {
-        Plugin.Core = self;
-        Plugin.OnInitialization();
-        LogLoadedMod(Plugin);
+        InitializePlugin(Plugin);
     }
 
     self.World = WorldInfo;
@@ -76,15 +110,26 @@ simulated event PostBeginPlay()
     SaveAsBaseController = false; // False by default or else mods won't see calls to Deserialize() 
 }
 
+private function InitializePlugin(Plugin Plugin)
+{
+    if(!Plugin.IsInitialized)
+    {
+        Plugin.IsInitialized = true;
+        Plugin.Core = self;
+        Plugin.OnInitialization();
+        LogLoadedMod(Plugin);
+    }
+}
+
 private function LogLoadedMod(Plugin Plugin)
 {
     if(Plugin.Id != "")
     {
-        `log("Mod loaded: " $ Plugin.Id);
+        `log("Initialized mod plugin: " $ Plugin.Id);
     }
     else
     {
-        `log("Mod loaded: Undefined ID");
+        `log("Initialized mod plugin: Undefined ID");
     }
 }
 
@@ -460,7 +505,6 @@ exec function ListMods()
 {
     local Plugin Plugin;
 
-    `log("Mod loaded: Core Mod"); // Events Mod is not a plugin so we need to list it explicitly
     foreach Plugins(Plugin)
     {
        LogLoadedMod(Plugin); 
