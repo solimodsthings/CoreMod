@@ -1,11 +1,11 @@
 
 // TODO: Extend class SRVPlayerController
 // once the source file is included with game
-class CoreSrvPlayerController extends Object;
+class CoreExpansionPlayerController extends Object;
 
-var array<SrvPlugin> Plugins;
+var array<ExpansionPlugin> Plugins;
 
-function AddPlugin(SrvPlugin Plugin)
+function AddPlugin(ExpansionPlugin Plugin)
 {
     Plugin.Core = self;
     Plugins.AddItem(Plugin);
