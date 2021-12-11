@@ -1,16 +1,18 @@
 // [Core Mod for Himeko Sutori (2021)]
 
+// This class is for base campaign mods to use.
+//
 // Extend this class in your own mods and override
 // the functions as necessary. Plugins should be
 // added to the CorePlayerController through the OnStart()
 // function in ModStart.
-class Plugin extends Object;
+class Plugin extends AbstractPlugin;
 
 // This needs to be defined by a listener via DefaultProperties
 // especially if there is a need to use Serialize() and Deserialize() later.
 // This property is used to form the keyname for serialized listener data and
 // also used as the name of mod when the ListMods command is used.
-var string Id;
+// var string Id;
 
 // This property is set automatically when CorePlayerController 
 // initializes all Plugins. It is not safe to use
