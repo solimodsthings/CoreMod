@@ -4,7 +4,7 @@
 // with core mod's CorePlayerController. CorePlayerController allows
 // other mutator mods to add Plugins and respond to specific game events
 // without needing to know the internal workings of a game.
-class CoreStart extends Mutator;
+class CoreStart extends ModStart;
 
 function InitMutator(string Options, out string ErrorMessage)
 {
@@ -12,7 +12,7 @@ function InitMutator(string Options, out string ErrorMessage)
 	{
 		WorldInfo.Game.PlayerControllerClass=class'CorePlayerController';
 		`log("Base campaign detected. Loading compatible mods...");
-		`log("Mod loaded: Core Mod");
+		`log("Initializing Core Mod...");
 	}
 	else // TODO: Compare WorldInfo.Game.PlayerControllerClass against class'SRVPlayerController' once it is available
 	{
@@ -23,4 +23,10 @@ function InitMutator(string Options, out string ErrorMessage)
 	}
 
 	super.InitMutator(Options, ErrorMessage);
+}
+
+DefaultProperties
+{
+	ModName = "Core Mod"
+	IntendedGameTypes[0] = "RPGTacGame.RPGTacGame"
 }
