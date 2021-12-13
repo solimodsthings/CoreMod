@@ -21,7 +21,7 @@ struct PawnSnapshot
 var CoreModJournalPlugin ModInformation;
 var array<PawnSnapshot> PawnSnapshots;
 var array<Plugin> Plugins;
-var array<string> IncompatibleModPluginNames;
+var array<AbstractPlugin> IncompatiblePlugins;
 var bool FirstMapLoaded;
 var bool PostBeginPlayOccurred;
 var WorldInfo World;
@@ -39,7 +39,11 @@ var bool IsFirstBattleTurn;
 // game events occur.
 function AddPlugin(Plugin Plugin)
 {
-    if(!PluginExists(Plugin))
+    if(PluginExists(Plugin))
+    {
+        `log("Cannot add mod plugin: " $ Plugin.Id $ " (it already exists)");
+    }
+    else
     {
         Plugins.AddItem(Plugin);
         // `log("Added mod plugin: " $ Plugin.Id);  // DEBUG
@@ -55,10 +59,6 @@ function AddPlugin(Plugin Plugin)
         {
             ModInformation.UpdateJournal();
         }
-    }
-    else
-    {
-        `log("Cannot add mod plugin: " $ Plugin.Id $ " (it already exists)");
     }
 
 }

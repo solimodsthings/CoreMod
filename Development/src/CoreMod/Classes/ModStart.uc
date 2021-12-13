@@ -3,40 +3,35 @@
 // This mutator class is meant for other mods to extend
 // as their mutator so they can register their Plugins with
 // OnLoad().
-// class ModStart extends Mutator;
 class ModStart extends RPGTacMutator
 	dependson(AbstractPlugin);
 
-var string ModName;    // Used for mod info journal
-
+var string ModName;        // To be populated by classes extending ModStart. Used for mod info journal
+var array<class> Plugins;  // To be populated by classes extending ModStart
 var bool IsPluginsLoaded;
 
-// Lets mods add plugins for initialization. Plugins
-// can be for the base game or expansion. ModStart will figure
-// out the rest. This method replaces OnStart().
-function OnLoad(PluginCollection Collection){} 
-
 // Deprecated, but still supported for backwards compatibility.
-// Only supports base campaign plugins.
+// Only supports base campaign plugins. The preferred way is for
+// mutators that extend ModStart to populate the Plugins array of
+// classes through DefaultProperties.
 function OnStart(CorePlayerController Core){}
 
-// Overriden to intialize CoreMod. Currently empty,
-// but don't want to forget that this exists
-function InitMutator(string Options, out string ErrorMessage)
-{
-    super.InitMutator(Options, ErrorMessage);
-}
-
+// This gets called multiple times after a savefile is loaded.
+// The player controller is not guaranteed to exist on the first call
+// so we check repeatedly until it does.
 function bool CheckReplacement(Actor Other)
 {	
-	TryLoadPlugins();	
+	if(!IsPluginsLoaded)
+	{
+		TryLoadPlugins();	
+	}
+
 	return super.CheckReplacement(Other);
 }
 
 // Mod plugins cannot be loaded until a player controller
 // exists. Once it exists, a plugin can only be successfully
-// loaded if it is compatible with the current game type:
-// base campaign or expansion campaign.
+// loaded if it is compatible with the current game type.
 private function TryLoadPlugins()
 {
 	local PlayerController Controller;
@@ -48,43 +43,46 @@ private function TryLoadPlugins()
 		if(Controller != none && CorePlayerController(Controller) != none)
 		{
 			IsPluginsLoaded = true; // Important for this to be first or there can be a race condition
-			LoadModPluginsForBaseCampaign();
+			LoadModPluginsForBaseCampaign(CorePlayerController(Controller));
 		}
 
 		// TODO: Once SRVPlayerController becomes available call
 		// if(Controller != none && CoreExpansionPlayerController(Controller) != none)
 		// {
 		//	  PlayerControllerExists = true;
-		//	  OnStart(CoreExpansionPlayerController(Controller));
+		//	  LoadModPluginsForExpansionCampaign(CoreExpansionPlayerController(Controller));
 		// }
 
 	}
 }
 
-private function LoadModPluginsForBaseCampaign()
+private function LoadModPluginsForBaseCampaign(CorePlayerController Core)
 {
-	local PluginCollection Plugins;
+	local PluginCollection Collection;
 	local Plugin Plugin;
 	local ExpansionPlugin ExpansionPlugin;
 	local AbstractPlugin AbstractPlugin;
-	local CorePlayerController Core;
 	local array<AbstractPlugin> IncompatiblePlugins;
-	local string IncompatibleModName;
-	local string PluginId;
+	local Class TargetClass;
 
-	Core = CorePlayerController(WorldInfo.Game.GetALocalPlayerController());
+	// This implicitly sorts plugins by compatibility
+	Collection = new class'PluginCollection';
 
-	Plugins = new class'PluginCollection';
+	foreach Plugins(TargetClass)
+	{
+		AbstractPlugin = AbstractPlugin(new TargetClass);
+		TryPopulateModName(AbstractPlugin);
+		Collection.Add(AbstractPlugin);
+	}
 
-	OnLoad(Plugins); // Allow mod to add both base campaign and expansion plugins to collection
+	//OnLoad(Plugins); // Allow mod to add both base campaign and expansion plugins to collection
 
 	// Only load base campaign plugins if the mod has strictly said it is compatible
 	// or if no compatibility was declared
 	if(IsCompatibleWithBaseCampaign())
 	{
-		foreach Plugins.BaseCampaignPlugins(Plugin)
+		foreach Collection.BaseCampaignPlugins(Plugin)
 		{
-			TryPopulateModName(Plugin);
 			Core.AddPlugin(Plugin);
 		}
 
@@ -94,13 +92,13 @@ private function LoadModPluginsForBaseCampaign()
 	}
 	else
 	{
-		foreach Plugins.BaseCampaignPlugins(Plugin)
+		foreach Collection.BaseCampaignPlugins(Plugin)
 		{
 			IncompatiblePlugins.AddItem(Plugin);
 		}
 	}
 	
-	foreach Plugins.ExpansionPlugins(ExpansionPlugin)
+	foreach Collection.ExpansionPlugins(ExpansionPlugin)
 	{
 		IncompatiblePlugins.AddItem(ExpansionPlugin);
 	}
@@ -114,19 +112,20 @@ private function LoadModPluginsForBaseCampaign()
 			AbstractPlugin.ModName = "Unnamed Mod";
 		}
 
-		PluginId = AbstractPlugin.Id;
+		// PluginId = AbstractPlugin.Id;
 
 		if(AbstractPlugin.Id == "")
 		{
-			PluginId = "Unidentified Plugin";
+			AbstractPlugin.Id = "Unidentified Plugin";
 		}
 
-		IncompatibleModName = AbstractPlugin.ModName $ ": '" $ PluginId $ "'";
+		// IncompatibleModName = AbstractPlugin.ModName $ ": '" $ PluginId $ "'";
 
-		Core.IncompatibleModPluginNames.AddItem(IncompatibleModName);
+		// Core.IncompatibleModPluginNames.AddItem(IncompatibleModName);
+
+		Core.IncompatiblePlugins.AddItem(AbstractPlugin);
+
 	}
-
-
 }
 
 // Tries to set the plugin's ModName variable to match

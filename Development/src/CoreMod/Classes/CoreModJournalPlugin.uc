@@ -22,6 +22,7 @@ function OnInitialization()
 function UpdateJournal()
 {
     local Plugin Plugin;
+    local AbstractPlugin AbstractPlugin;
     local RPGTacMutator Mutator;
     local class<RPGTacMutator> MutatorClass;
     local array<string> MutatorNames;
@@ -110,12 +111,22 @@ function UpdateJournal()
 
     CustomEntry.EntryInfo $= "\n";
     CustomEntry.EntryInfo $= "[Plugins Incompatible with Current Campaign]\n";
-    foreach Core.IncompatibleModPluginNames(IncompatiblePluginName)
+    //foreach Core.IncompatibleModPluginNames(IncompatiblePluginName)
+    foreach Core.IncompatiblePlugins(AbstractPlugin)
     {
-        CustomEntry.EntryInfo $= " + " $ IncompatiblePluginName;
+
+        IncompatiblePluginName = AbstractPlugin.Id;
+
+        if(IncompatiblePluginName == "")
+        {
+            IncompatiblePluginName = "Unidentified Plugin";
+        }
+
+        CustomEntry.EntryInfo $= " + " $ AbstractPlugin.ModName $ ": " $ IncompatiblePluginName;
     }
 
-    if(Core.IncompatibleModPluginNames.Length == 0)
+    //if(Core.IncompatibleModPluginNames.Length == 0)
+    if(Core.IncompatiblePlugins.Length == 0)
     {
         CustomEntry.EntryInfo $= "None";
     }
